@@ -1,0 +1,19 @@
+[{
+        "name": "Independence Palace",
+        "address": "135 Nam Kỳ Khởi Nghĩa, Phường Bến Thành, Quận 1, Hồ Chí Minh 700000",
+        "coords": {
+            "latitude": 25.034178,
+            "longitude": 121.564494
+        },
+        "image_url": "https://dimg04.c-ctrip.com/images/350v0y000000miab3FDE5_C_1136_640_Q60.jpg?proc=source/trip;namelogo/d_40"
+    },
+    {
+        "name": "Turtle Lake",
+        "address": "Turtle Lake, phường 6, District 3, Ho Chi Minh City",
+        "coords": {
+            "latitude": 25.0400,
+            "longitude": 121.5602
+        },
+        "image_url": "https://s.zimedia.com.tw/c/6634if"
+    }
+]
