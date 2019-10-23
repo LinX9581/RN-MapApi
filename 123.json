@@ -1,0 +1,108 @@
+[{
+        "name": "Independence Palace",
+        "address": "135 Nam Kỳ Khởi Nghĩa, Phường Bến Thành, Quận 1, Hồ Chí Minh 700000",
+        "coords": {
+            "latitude": 25.034178,
+            "longitude": 121.564494
+        },
+        "image_url": "https://dimg04.c-ctrip.com/images/350v0y000000miab3FDE5_C_1136_640_Q60.jpg?proc=source/trip;namelogo/d_40"
+    },
+    {
+        "name": "世新大學管理學院",
+        "address": "116台北市文山區木柵路一段111號",
+        "coords": {
+            "latitude": 24.988076,
+            "longitude":121.547923
+        },
+        "image_url": "http://wp.shu.edu.tw/wp-ctt/uploads/sites/12/2016/08/65caf2c3805ab9fd73c7582918f0874b.jpg"
+    },
+    {
+        "name": "金瑪麗義大利麵",
+        "address": "116台北市文山區木柵路一段62號",
+        "coords": {
+            "latitude":24.986874,
+            "longitude": 121.547640
+        },
+        "image_url": "https://meidin.tw/wp-content/uploads/2017/09/1504270959-85c08a8a6ba60e600673478bf66d13e8.jpg"
+    },
+    {
+        "name": "試院精緻自助餐",
+        "address": "116台北市文山區木柵路一段99號",
+        "coords": {
+            "latitude":24.987174, 
+            "longitude": 121.547550
+        },
+        "image_url": "https://cdn1.tw.orstatic.com/userphoto/doorphoto/0/Z/00072S59DC13D6AA6352FCpx.jpg"
+    },
+    {
+        "name": "佳蒂早餐坊",
+        "address": "116台北市文山區試院路80-1號",
+        "coords": {
+            "latitude": 24.989799, 
+            "longitude": 121.549018
+        },
+        "image_url": "https://5breakfast.com/uploads/stores/M894dBlLd5cSDdwLiWb8dPUYuZspVi_1440x900.jpg"
+    },
+    {
+        "name": "景美豆花",
+        "address": "116台北市文山區景美街86號",
+        "coords": {
+            "latitude":24.989955, 
+            "longitude": 121.541219
+        },
+        "image_url": "https://pic.pimg.tw/vindie123/1382807359-3136683075_l.jpg"
+    },
+    {
+        "name": "MINT PASTA 綠薄荷麵食坊",
+        "address": "116台北市文山區景興路274之2號",
+        "coords": {
+            "latitude": 24.989960, 
+            "longitude": 121.542368
+        },
+        "image_url": "https://img.auntie.tw/uploads/20180429155332_9.jpg"
+    },
+    {
+        "name": "考試院",
+        "address": "116台北市文山區試院路1號",
+        "coords": {
+            "latitude": 24.987861,
+            "longitude":  121.549292
+        },
+        "image_url": "https://pgw.udn.com.tw/gw/photo.php?u=https://uc.udn.com.tw/photo/2019/04/12/1/6164925.jpeg&x=0&y=0&sw=0&sh=0&exp=3600"
+    },
+    {
+        "name": "和興食堂",
+        "address": "116台北市文山區木柵路一段73號",
+        "coords": {
+            "latitude": 24.986976, 
+            "longitude": 121.546489
+        },
+        "image_url": "https://cdn.walkerland.com.tw/images/upload/poi/p73036/m66471/8e991f9c3c1e9833abbccad3c860ae1fc732e7b3.jpg"
+    },
+    {
+        "name": "神威影印世新店",
+        "address": "116台北市文山區木柵路一段5-1號",
+        "coords": {
+            "latitude":24.988568, 
+            "longitude": 121.542814
+        },
+        "image_url": "https://img.etwarm.com.tw/A0764/available/60764AAD60904v.jpg"
+    },
+    {
+        "name": "摩根漢堡",
+        "address": "116台北市文山區木柵路一段38之1號",
+        "coords": {
+            "latitude": 24.986736, 
+            "longitude": 121.546690
+        },
+        "image_url": "https://i0.wp.com/www.shucpnews.org/wp-content/uploads/2016/09/20160918_4.jpg"
+    }
+
+
+
+
+
+
+
+
+]

@@ -1,5 +1,13 @@
 import React, { Component } from "react";
-import { Platform,Text,View,StyleSheet,Dimensions,Image,TouchableOpacity } from "react-native";
+import {
+  Platform,
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
 import Constants from "expo-constants";
@@ -17,6 +25,9 @@ export default class App extends Component {
     longitude: null,
     locations: locations,
     dialogVisible: false,
+    tackPhotoLocation: null,
+    tackPhotoLatitude: null,
+    tackPhotoLongitude: null,
   };
 
   async componentDidMount() {
@@ -53,6 +64,44 @@ export default class App extends Component {
     );
   }
 
+  _takePhoto = async () => {
+    const { status: cameraPerm } = await Permissions.askAsync(
+      Permissions.CAMERA
+    );
+
+    const { status: cameraRollPerm } = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL
+    );
+
+    // only if user allows permission to camera AND camera roll
+    if (cameraPerm === "granted" && cameraRollPerm === "granted") {
+      let pickerResult = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [9, 9],
+      });
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          
+          const tackPhotoLatitude = position.coords.latitude;
+          const tackPhotoLongitude = position.coords.longitude;
+          
+          this.setState({
+            tackPhotoLatitude: position.coords.latitude,
+            tackPhotoLongitude: position.coords.longitude
+          });
+          console.log(tackPhotoLatitude,tackPhotoLongitude)
+        },
+        error => console.log("Error:", error),
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      );
+      
+      console.log(pickerResult.uri);
+      // this.setState({ image: pickerResult.uri });
+      // ImgRecgnize(pickerResult.uri);
+    }
+  };
+
   //從 location.json 取得經緯度
   mergeCoords = () => {
     const { latitude, longitude, desLatitude, desLongitude } = this.state;
@@ -73,11 +122,10 @@ export default class App extends Component {
       const resp = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${desLoc}&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
       );
-      // console.log(resp)
       const respJson = await resp.json();
 
       //需要取得距離資訊才用
-      
+
       // console.log(respJson)
       // const response = respJson.routes[0];
       // const distanceTime = response.legs[0];
@@ -103,7 +151,6 @@ export default class App extends Component {
   async onTargetPress() {
     console.log("testtetetset");
   }
-
 
   //地圖標記 start
 
@@ -153,8 +200,7 @@ export default class App extends Component {
 
   //地圖標記 end
 
-
-  //dialog start 
+  //dialog start
   showDialog = () => {
     this.setState({ dialogVisible: true });
   };
@@ -170,28 +216,6 @@ export default class App extends Component {
   };
 
   //dialog end
-
-  _takePhoto = async () => {
-    const { status: cameraPerm } = await Permissions.askAsync(
-      Permissions.CAMERA
-    );
-
-    const { status: cameraRollPerm } = await Permissions.askAsync(
-      Permissions.CAMERA_ROLL
-    );
-
-    // only if user allows permission to camera AND camera roll
-    if (cameraPerm === "granted" && cameraRollPerm === "granted") {
-      let pickerResult = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [9, 9],
-      });
-      console.log(pickerResult)
-      // this.setState({ image: pickerResult.uri });
-      // ImgRecgnize(pickerResult.uri);
-    }
-  };
-
 
   render() {
     const { latitude, longitude, coords, destination } = this.state;
@@ -227,13 +251,17 @@ export default class App extends Component {
             />
           </MapView>
 
-            
           <View style={naviStyle.bottmContainer}>
-            
-            <TouchableOpacity style={[naviStyle.button, { backgroundColor: "#53423D" }]}>
-              <Text onPress={this._takePhoto} style={naviStyle.buttonText}>拍照解成就 </Text>
+            <TouchableOpacity
+              style={[naviStyle.button, { backgroundColor: "#53423D" }]}
+            >
+              <Text onPress={this._takePhoto} style={naviStyle.buttonText}>
+                拍照解成就{" "}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[naviStyle.button, { backgroundColor: "#A58987" }]}>
+            <TouchableOpacity
+              style={[naviStyle.button, { backgroundColor: "#A58987" }]}
+            >
               <Text style={naviStyle.buttonText}>達題解成就</Text>
             </TouchableOpacity>
           </View>
