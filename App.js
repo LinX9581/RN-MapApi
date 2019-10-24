@@ -7,6 +7,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
@@ -65,6 +66,8 @@ export default class App extends Component {
   }
 
   _takePhoto = async () => {
+    const { latitude, longitude} = this.state;
+
     const { status: cameraPerm } = await Permissions.askAsync(
       Permissions.CAMERA
     );
@@ -79,29 +82,93 @@ export default class App extends Component {
         allowsEditing: true,
         aspect: [9, 9],
       });
+      console.log(latitude)
+      console.log(longitude)
 
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          
-          const tackPhotoLatitude = position.coords.latitude;
-          const tackPhotoLongitude = position.coords.longitude;
-          
-          this.setState({
-            tackPhotoLatitude: position.coords.latitude,
-            tackPhotoLongitude: position.coords.longitude
-          });
-          console.log(tackPhotoLatitude,tackPhotoLongitude)
-        },
-        error => console.log("Error:", error),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      let getAreaUrl = `https://maps.google.com/maps/api/geocode/json?latlng=`+latitude+`,`+longitude+`&language=zh-TW&sensor=true&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
+
+      const getArea = await fetch(
+        getAreaUrl
       );
-      
+      const getAreaJson = await getArea.json();
+      console.log(getAreaUrl)
+      let formatArea = getAreaJson.results[0].formatted_address
+
+      const getCertainPointUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${25.0056622,121.5378398}&destination=${24.989799,121.549018}&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
+
+      const getCertainPoint = await fetch(
+        getCertainPointUrl
+      );
+      const getCertainPointJson = await getCertainPoint.json();
+
+      console.log(getCertainPointUrl)
+      console.log(getCertainPointJson)
+      if(formatArea.match("台北市"))
+      {
+        Alert.alert(
+          '達成成就!',
+          '抵達台北市',
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {
+            //   text: 'Cancel',
+            //   onPress: () => console.log('Cancel Pressed'),
+            //   style: 'cancel',
+            // },
+            {text: 'Next', onPress: () => console.log('OK Pressed')},
+          ],
+          {cancelable: false},
+        );
+        if(formatArea.match("文山區")){
+          Alert.alert(
+            '達成成就!',
+            '抵達文山區',
+            [
+              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              // {
+              //   text: 'Cancel',
+              //   onPress: () => console.log('Cancel Pressed'),
+              //   style: 'cancel',
+              // },
+              {text: 'Next', onPress: () => console.log('OK Pressed')},
+            ],
+            {cancelable: false},
+          );
+
+
+        }
+      }else{
+        Alert.alert(
+          '位置不符!',
+          '',
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {
+            //   text: 'Cancel',
+            //   onPress: () => console.log('Cancel Pressed'),
+            //   style: 'cancel',
+            // },
+            {text: 'Next', onPress: () => console.log('OK Pressed')},
+          ],
+          {cancelable: false},
+        );
+
+      }
+      console.log(getAreaJson.results[0].formatted_address)
       console.log(pickerResult.uri);
       // this.setState({ image: pickerResult.uri });
       // ImgRecgnize(pickerResult.uri);
     }
   };
 
+  async getAreaFunction(getAreaUrl){
+    const resp1 = await fetch(
+      getAreaUrl
+    );
+    console.log(getAreaUrl)
+    console.log(resp1)
+    const respJson1 = await resp.json();
+  }
   //從 location.json 取得經緯度
   mergeCoords = () => {
     const { latitude, longitude, desLatitude, desLongitude } = this.state;
@@ -185,10 +252,7 @@ export default class App extends Component {
               onPress={this.onMarkerPress(location)}
             >
               <Image
-                source={{
-                  uri:
-                    "https://p1.hiclipart.com/preview/180/349/86/super-mario-icons-super-mario-star-illustration-thumbnail.jpg",
-                }}
+                source = {require("./img/MARK.png")}
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
@@ -217,6 +281,7 @@ export default class App extends Component {
 
   //dialog end
 
+  // MapView 不能放除了他自己以外的其他標籤
   render() {
     const { latitude, longitude, coords, destination } = this.state;
 
@@ -234,22 +299,24 @@ export default class App extends Component {
             }}
           >
             {this.renderMarkers()}
-
-            <Text> 取得定位中 </Text>
-
-            <Image
-              source={{ uri: destination && destination.image_url }}
-              style={{
-                flex: 1,
-                width: width * 0.95, //螢幕寬
-                alignSelf: "center",
-                height: height * 0.2, //螢幕高
-                position: "absolute",
-                bottom: height * 0.05,
-              }}
-              onPress={this.onTargetPress()}
-            />
           </MapView>
+
+          <Image
+            source={{ uri: destination && destination.image_url }}
+            style={{
+              flex: 1,
+              margin:10,
+              width: width * 0.95, //螢幕寬
+              alignSelf: "center",
+              height: height * 0.2, //螢幕高
+              position: "absolute",
+              bottom: height * 0.05,
+            }}
+          >
+            
+            </Image>
+
+ 
 
           <View style={naviStyle.bottmContainer}>
             <TouchableOpacity
