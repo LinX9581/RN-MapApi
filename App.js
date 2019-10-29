@@ -16,6 +16,7 @@ import * as Permissions from "expo-permissions";
 import Polyline from "@mapbox/polyline";
 import Dialog from "react-native-dialog";
 import * as ImagePicker from "expo-image-picker";
+import Topic from "./Topic";
 
 const locations = require("./locations.json");
 const { width, height } = Dimensions.get("screen");
@@ -65,110 +66,6 @@ export default class App extends Component {
     );
   }
 
-  _takePhoto = async () => {
-    const { latitude, longitude} = this.state;
-
-    const { status: cameraPerm } = await Permissions.askAsync(
-      Permissions.CAMERA
-    );
-
-    const { status: cameraRollPerm } = await Permissions.askAsync(
-      Permissions.CAMERA_ROLL
-    );
-
-    // only if user allows permission to camera AND camera roll
-    if (cameraPerm === "granted" && cameraRollPerm === "granted") {
-      let pickerResult = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [9, 9],
-      });
-      console.log(latitude)
-      console.log(longitude)
-
-      let getAreaUrl = `https://maps.google.com/maps/api/geocode/json?latlng=`+latitude+`,`+longitude+`&language=zh-TW&sensor=true&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
-
-      const getArea = await fetch(
-        getAreaUrl
-      );
-      const getAreaJson = await getArea.json();
-      console.log(getAreaUrl)
-      let formatArea = getAreaJson.results[0].formatted_address
-
-      const getCertainPointUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${25.0056622,121.5378398}&destination=${24.989799,121.549018}&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
-
-      const getCertainPoint = await fetch(
-        getCertainPointUrl
-      );
-      const getCertainPointJson = await getCertainPoint.json();
-
-      console.log(getCertainPointUrl)
-      console.log(getCertainPointJson)
-      if(formatArea.match("台北市"))
-      {
-        Alert.alert(
-          '達成成就!',
-          '抵達台北市',
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {
-            //   text: 'Cancel',
-            //   onPress: () => console.log('Cancel Pressed'),
-            //   style: 'cancel',
-            // },
-            {text: 'Next', onPress: () => console.log('OK Pressed')},
-          ],
-          {cancelable: false},
-        );
-        if(formatArea.match("文山區")){
-          Alert.alert(
-            '達成成就!',
-            '抵達文山區',
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {
-              //   text: 'Cancel',
-              //   onPress: () => console.log('Cancel Pressed'),
-              //   style: 'cancel',
-              // },
-              {text: 'Next', onPress: () => console.log('OK Pressed')},
-            ],
-            {cancelable: false},
-          );
-
-
-        }
-      }else{
-        Alert.alert(
-          '位置不符!',
-          '',
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {
-            //   text: 'Cancel',
-            //   onPress: () => console.log('Cancel Pressed'),
-            //   style: 'cancel',
-            // },
-            {text: 'Next', onPress: () => console.log('OK Pressed')},
-          ],
-          {cancelable: false},
-        );
-
-      }
-      console.log(getAreaJson.results[0].formatted_address)
-      console.log(pickerResult.uri);
-      // this.setState({ image: pickerResult.uri });
-      // ImgRecgnize(pickerResult.uri);
-    }
-  };
-
-  async getAreaFunction(getAreaUrl){
-    const resp1 = await fetch(
-      getAreaUrl
-    );
-    console.log(getAreaUrl)
-    console.log(resp1)
-    const respJson1 = await resp.json();
-  }
   //從 location.json 取得經緯度
   mergeCoords = () => {
     const { latitude, longitude, desLatitude, desLongitude } = this.state;
@@ -236,6 +133,133 @@ export default class App extends Component {
     );
   };
 
+  //#################################   底下兩個Button start  ######################################
+
+  //拍照解成就
+  _takePhoto = async () => {
+    const { latitude, longitude } = this.state;
+
+    const { status: cameraPerm } = await Permissions.askAsync(
+      Permissions.CAMERA
+    );
+
+    const { status: cameraRollPerm } = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL
+    );
+
+    // only if user allows permission to camera AND camera roll
+    if (cameraPerm === "granted" && cameraRollPerm === "granted") {
+      let pickerResult = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [9, 9],
+      });
+      console.log(latitude);
+      console.log(longitude);
+
+      let getAreaUrl =
+        `https://maps.google.com/maps/api/geocode/json?latlng=` +
+        latitude +
+        `,` +
+        longitude +
+        `&language=zh-TW&sensor=true&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
+
+      const getArea = await fetch(getAreaUrl);
+      const getAreaJson = await getArea.json();
+      console.log(getAreaUrl);
+      let formatArea = getAreaJson.results[0].formatted_address;
+
+      const getCertainPointUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=25.0056622,121.5378398&destination=24.989799,121.549018&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
+
+      const getCertainPoint = await fetch(getCertainPointUrl);
+      const getCertainPointJson = await getCertainPoint.json();
+
+      console.log(getCertainPointUrl);
+      // console.log(getCertainPointJson)
+
+      const getCertainPointJsonRoutes = getCertainPointJson.routes[0];
+      const getCertainPointJsonRoutesTime = getCertainPointJsonRoutes.legs[0];
+      const getCertainPointJsonDistance =
+        getCertainPointJsonRoutesTime.distance.value;
+
+      console.log(getCertainPointJsonDistance);
+      if (formatArea.match("台北市")) {
+        Alert.alert(
+          "達成成就!",
+          "抵達台北市",
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {
+            //   text: 'Cancel',
+            //   onPress: () => console.log('Cancel Pressed'),
+            //   style: 'cancel',
+            // },
+            { text: "Next", onPress: () => console.log("OK Pressed") },
+          ],
+          { cancelable: false }
+        );
+        if (formatArea.match("文山區")) {
+          Alert.alert(
+            "達成成就!",
+            "抵達文山區",
+            [
+              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+              // {
+              //   text: 'Cancel',
+              //   onPress: () => console.log('Cancel Pressed'),
+              //   style: 'cancel',
+              // },
+              { text: "Next", onPress: () => console.log("OK Pressed") },
+            ],
+            { cancelable: false }
+          );
+
+          if (getCertainPointJsonDistance <= 5) {
+            Alert.alert(
+              "達成成就!",
+              "抵達世新管院",
+              [
+                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+                // {
+                //   text: 'Cancel',
+                //   onPress: () => console.log('Cancel Pressed'),
+                //   style: 'cancel',
+                // },
+                { text: "Next", onPress: () => console.log("OK Pressed") },
+              ],
+              { cancelable: false }
+            );
+          }
+        }
+      } else {
+        Alert.alert(
+          "位置不符!",
+          "",
+          [
+            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+            // {
+            //   text: 'Cancel',
+            //   onPress: () => console.log('Cancel Pressed'),
+            //   style: 'cancel',
+            // },
+            { text: "Next", onPress: () => console.log("OK Pressed") },
+          ],
+          { cancelable: false }
+        );
+      }
+      console.log(getAreaJson.results[0].formatted_address);
+      console.log(pickerResult.uri);
+      // this.setState({ image: pickerResult.uri });
+      // ImgRecgnize(pickerResult.uri);
+    }
+  };
+
+  // 答題
+  anwser = () => {
+    this.setState({ dialogVisible: true });
+  };
+
+  //#################################   底下兩個Button end  ######################################
+
   //地點標記
   renderMarkers = () => {
     const { locations } = this.state;
@@ -252,7 +276,7 @@ export default class App extends Component {
               onPress={this.onMarkerPress(location)}
             >
               <Image
-                source = {require("./img/MARK.png")}
+                source={require("./img/MARK.png")}
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
@@ -305,18 +329,14 @@ export default class App extends Component {
             source={{ uri: destination && destination.image_url }}
             style={{
               flex: 1,
-              margin:10,
+              margin: 10,
               width: width * 0.95, //螢幕寬
               alignSelf: "center",
               height: height * 0.2, //螢幕高
               position: "absolute",
               bottom: height * 0.05,
             }}
-          >
-            
-            </Image>
-
- 
+          ></Image>
 
           <View style={naviStyle.bottmContainer}>
             <TouchableOpacity
@@ -329,7 +349,9 @@ export default class App extends Component {
             <TouchableOpacity
               style={[naviStyle.button, { backgroundColor: "#A58987" }]}
             >
-              <Text style={naviStyle.buttonText}>達題解成就</Text>
+              <Text onPress={this.anwser} style={naviStyle.buttonText}>
+                達題解成就
+              </Text>
             </TouchableOpacity>
           </View>
 
