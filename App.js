@@ -165,8 +165,15 @@ export default class App extends Component {
 
       const getArea = await fetch(getAreaUrl);
       const getAreaJson = await getArea.json();
-      console.log(getAreaUrl);
-      let formatArea = getAreaJson.results[0].formatted_address;
+      let yourselfFormatAddress = getAreaJson.results[0].formatted_address;
+
+
+      let pointAddress = [
+        [25.004810,121.538040],
+        [25.004710,121.538378],
+        [25.102421,121.548500],
+        [25.043786,121.560636]
+      ]
 
       const getCertainPointUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=25.0056622,121.5378398&destination=24.989799,121.549018&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
 
@@ -182,25 +189,11 @@ export default class App extends Component {
         getCertainPointJsonRoutesTime.distance.value;
 
       console.log(getCertainPointJsonDistance);
-      if (formatArea.match("台北市")) {
-        Alert.alert(
-          "達成成就!",
-          "抵達台北市",
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {
-            //   text: 'Cancel',
-            //   onPress: () => console.log('Cancel Pressed'),
-            //   style: 'cancel',
-            // },
-            { text: "Next", onPress: () => console.log("OK Pressed") },
-          ],
-          { cancelable: false }
-        );
-        if (formatArea.match("文山區")) {
+
+        if (getCertainPointJsonDistance <= 5) {
           Alert.alert(
             "達成成就!",
-            "抵達文山區",
+            "抵達世新管院",
             [
               // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
               // {
@@ -212,45 +205,12 @@ export default class App extends Component {
             ],
             { cancelable: false }
           );
-
-          if (getCertainPointJsonDistance <= 5) {
-            Alert.alert(
-              "達成成就!",
-              "抵達世新管院",
-              [
-                // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                // {
-                //   text: 'Cancel',
-                //   onPress: () => console.log('Cancel Pressed'),
-                //   style: 'cancel',
-                // },
-                { text: "Next", onPress: () => console.log("OK Pressed") },
-              ],
-              { cancelable: false }
-            );
-          }
         }
-      } else {
-        Alert.alert(
-          "位置不符!",
-          "",
-          [
-            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-            // {
-            //   text: 'Cancel',
-            //   onPress: () => console.log('Cancel Pressed'),
-            //   style: 'cancel',
-            // },
-            { text: "Next", onPress: () => console.log("OK Pressed") },
-          ],
-          { cancelable: false }
-        );
       }
       console.log(getAreaJson.results[0].formatted_address);
       console.log(pickerResult.uri);
       // this.setState({ image: pickerResult.uri });
       // ImgRecgnize(pickerResult.uri);
-    }
   };
 
   // 答題
@@ -269,6 +229,7 @@ export default class App extends Component {
           const {
             coords: { latitude, longitude },
           } = location;
+          //放陣列判斷 有沒有達成  各別render 圖片放不一樣
           return (
             <Marker
               key={idx}
