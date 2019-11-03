@@ -26,10 +26,13 @@ export default class App extends Component {
     latitude: null,
     longitude: null,
     locations: locations,
-    dialogVisible: false,
+    answerTipsDialogVisible: false,
+    answerDialogVisible: false,
     tackPhotoLocation: null,
     tackPhotoLatitude: null,
     tackPhotoLongitude: null,
+    // userAddressInfoState: [],
+    serverUserAddressInfo: [0, 0, 1, 0, 1, 0],
   };
 
   async componentDidMount() {
@@ -138,6 +141,7 @@ export default class App extends Component {
   //拍照解成就
   _takePhoto = async () => {
     const { latitude, longitude } = this.state;
+    const { serverUserAddressInfo } = this.state;
 
     const { status: cameraPerm } = await Permissions.askAsync(
       Permissions.CAMERA
@@ -153,8 +157,7 @@ export default class App extends Component {
         allowsEditing: true,
         aspect: [9, 9],
       });
-      console.log(latitude);
-      console.log(longitude);
+      console.log(latitude + " " + longitude + " 自己的位置");
 
       let getAreaUrl =
         `https://maps.google.com/maps/api/geocode/json?latlng=` +
@@ -167,62 +170,74 @@ export default class App extends Component {
       const getAreaJson = await getArea.json();
       let yourselfFormatAddress = getAreaJson.results[0].formatted_address;
 
-
       let pointAddress = [
-        [25.004810,121.538040],
-        [25.004710,121.538378],
-        [25.102421,121.548500],
-        [25.043786,121.560636]
-      ]
+        [24.988076, 121.547923], //管院
+        [25.034768, 121.521797], //中正紀念堂
+        [25.040347, 121.560254], //國父紀念館
+        [24.998666, 121.581094], //木柵動物園
+        [25.00481, 121.53804], //三角冰
+        [25.00471, 121.538378], //咖啡廳
+      ];
 
-      const getCertainPointUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=25.0056622,121.5378398&destination=24.989799,121.549018&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
+      let userAddressInfo = [0, 0, 0, 0, 0, 0];
+      for (let i = 0; i <= pointAddress.length - 1; i++) {
+        const getCertainPointUrl =
+          `https://maps.googleapis.com/maps/api/directions/json?origin=25.0056622,121.5378398&destination=` +
+          pointAddress[i].toString() +
+          `&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
 
-      const getCertainPoint = await fetch(getCertainPointUrl);
-      const getCertainPointJson = await getCertainPoint.json();
+        const getCertainPoint = await fetch(getCertainPointUrl);
+        const getCertainPointJson = await getCertainPoint.json();
+        const getCertainPointJsonRoutes = getCertainPointJson.routes[0];
+        const getCertainPointJsonRoutesTime = getCertainPointJsonRoutes.legs[0];
+        const getCertainPointJsonDistance =
+          getCertainPointJsonRoutesTime.distance.value;
 
-      console.log(getCertainPointUrl);
-      // console.log(getCertainPointJson)
-
-      const getCertainPointJsonRoutes = getCertainPointJson.routes[0];
-      const getCertainPointJsonRoutesTime = getCertainPointJsonRoutes.legs[0];
-      const getCertainPointJsonDistance =
-        getCertainPointJsonRoutesTime.distance.value;
-
-      console.log(getCertainPointJsonDistance);
-
-        if (getCertainPointJsonDistance <= 5) {
-          Alert.alert(
-            "達成成就!",
-            "抵達世新管院",
-            [
-              // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-              // {
-              //   text: 'Cancel',
-              //   onPress: () => console.log('Cancel Pressed'),
-              //   style: 'cancel',
-              // },
-              { text: "Next", onPress: () => console.log("OK Pressed") },
-            ],
-            { cancelable: false }
-          );
+        console.log(getCertainPointJsonDistance);
+        console.log(getCertainPointUrl);
+        if (getCertainPointJsonDistance < 300) {
+          if (serverUserAddressInfo[i] == "1") {
+            Alert.alert(
+              "已重複完成成就哦!",
+              "請前往下一個成就",
+              [{ text: "Next", onPress: () => console.log("已完成成就") }],
+              { cancelable: false }
+            );
+          } else {
+            console.log("第" + i + "個被完成");
+            Alert.alert(
+              "恭喜完成成就!",
+              "請前往下一個成就",
+              [{ text: "Next", onPress: () => console.log("已完成成就") }],
+              { cancelable: false }
+            );
+            // server 預設的 addressInfo 要是 0,0,0,0,0...
+            // 解開成就再 update serverAddressInfo
+            serverUserAddressInfo[i] = 1;
+          }
+          // this.setState({ userAddressInfoState: userAddressInfo });
         }
+        // console.log(pointAddress[0].toString())
       }
-      console.log(getAreaJson.results[0].formatted_address);
-      console.log(pickerResult.uri);
-      // this.setState({ image: pickerResult.uri });
-      // ImgRecgnize(pickerResult.uri);
+    }
+    console.log(getAreaJson.results[0].formatted_address);
+    console.log(pickerResult.uri);
+    // this.setState({ image: pickerResult.uri });
+    // ImgRecgnize(pickerResult.uri);
   };
 
   // 答題
   anwser = () => {
-    this.setState({ dialogVisible: true });
+    this.setState({ answerTipsDialogVisible: true });
   };
 
-  //#################################   底下兩個Button end  ######################################
+  //#################################   底下兩個Button end  #######################################
 
-  //地點標記
+  //#################################   地圖標記 start  #######################################
   renderMarkers = () => {
     const { locations } = this.state;
+    const { serverUserAddressInfo } = this.state;
+    console.log(serverUserAddressInfo + " 從Server 撈出的訊息");
     return (
       <View>
         {locations.map((location, idx) => {
@@ -230,38 +245,54 @@ export default class App extends Component {
             coords: { latitude, longitude },
           } = location;
           //放陣列判斷 有沒有達成  各別render 圖片放不一樣
-          return (
-            <Marker
-              key={idx}
-              coordinate={{ latitude, longitude }}
-              onPress={this.onMarkerPress(location)}
-            >
-              <Image
-                source={require("./img/MARK.png")}
-                style={{ height: 35, width: 35 }}
-              />
-            </Marker>
-          );
+          // console.log(idx)
+          if (serverUserAddressInfo[idx] == "1") {
+            return (
+              <Marker
+                key={idx}
+                coordinate={{ latitude, longitude }}
+                onPress={this.onMarkerPress(location)}
+              >
+                <Image
+                  source={require("./img/finishMark.png")}
+                  style={{ height: 35, width: 35 }}
+                />
+              </Marker>
+            );
+          } else {
+            return (
+              <Marker
+                key={idx}
+                coordinate={{ latitude, longitude }}
+                onPress={this.onMarkerPress(location)}
+              >
+                <Image
+                  source={require("./img/mark.png")}
+                  style={{ height: 35, width: 35 }}
+                />
+              </Marker>
+            );
+          }
         })}
       </View>
     );
   };
 
-  //地圖標記 end
+  //#################################   地圖標記 end  #######################################
 
   //dialog start
   showDialog = () => {
-    this.setState({ dialogVisible: true });
+    this.setState({ answerTipsDialogVisible: true });
   };
 
   handleCancel = () => {
-    this.setState({ dialogVisible: false });
+    this.setState({ answerTipsDialogVisible: false });
   };
 
   handleDelete = () => {
     // The user has pressed the "Delete" button, so here you can do your own logic.
     // ...Your logic
-    this.setState({ dialogVisible: false });
+    this.setState({ answerTipsDialogVisible: false });
   };
 
   //dialog end
@@ -316,7 +347,7 @@ export default class App extends Component {
             </TouchableOpacity>
           </View>
 
-          <Dialog.Container visible={this.state.dialogVisible}>
+          <Dialog.Container visible={this.state.answerTipsDialogVisible}>
             <Dialog.Title>Account delete</Dialog.Title>
             <Dialog.Description>
               Do you want to delete this account? You cannot undo this action.
