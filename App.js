@@ -1,122 +1,93 @@
 import React, { Component } from "react";
 import {
-  Platform,
   Text,
-  View,
   StyleSheet,
   Dimensions,
   Image,
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { Dialog } from "react-native-simple-dialogs";
+
+import * as Location from "expo-location";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
-import Polyline from "@mapbox/polyline";
-import Dialog from "react-native-dialog";
 import * as ImagePicker from "expo-image-picker";
-import Topic from "./Topic";
+import { Container, Header, Button, Icon, Fab, View } from "native-base";
 
-const locations = require("./locations.json");
+let num = 0;
+const locations = require("./location/locations.json");
 const { width, height } = Dimensions.get("screen");
 
 export default class App extends Component {
-  state = {
-    latitude: null,
-    longitude: null,
-    locations: locations,
-    answerTipsDialogVisible: false,
-    answerDialogVisible: false,
-    tackPhotoLocation: null,
-    tackPhotoLatitude: null,
-    tackPhotoLongitude: null,
-    // userAddressInfoState: [],
-    serverUserAddressInfo: [0, 0, 1, 0, 1, 0],
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      latitude: null,
+      longitude: null,
+      locations: locations,
+      serverUserAddressInfo: [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+      ],
+      nightMarketVisible: false,
+      michelinVisible: false,
+      test: true,
+      answerTipsDialogVisible: false,
+      active: false,
+    };
+  }
 
   async componentDidMount() {
     //官方寫法 start
-    const { status } = await Permissions.getAsync(Permissions.LOCATION);
-
+    // 現在的位置
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
-      const response = await Permissions.askAsync(Permissions.LOCATION);
+      console.log("please");
     }
-    // let location = await Location.getCurrentPositionAsync({});
-    // this.setState({ location });
-    //end
-
-    // getCurrentPositionAsync 格式
-    // {"timestamp":1571582585771,"mocked":false,"coords":{"altitude":28.399999618530273,"heading":0,"longitude":121.5378173,"speed":0,"latitude":25.0057082,"accuracy":17.600000381469727}}
-
-    //指派 latitude, longitude
-    navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) =>
-        this.setState({ latitude, longitude }, this.mergeCoords),
-      error => console.log("Error:", error)
-    );
-
-    const {
-      locations: [sampleLocation],
-    } = this.state;
-
-    this.setState(
-      {
-        desLatitude: sampleLocation.coords.latitude,
-        desLongitude: sampleLocation.coords.longitude,
-      },
-      this.mergeCoords
-    );
-  }
-
-  //從 location.json 取得經緯度
-  mergeCoords = () => {
-    const { latitude, longitude, desLatitude, desLongitude } = this.state;
-
-    const hasStartAndEnd = latitude !== null && desLatitude !== null;
-
-    if (hasStartAndEnd) {
-      const concatStart = `${latitude},${longitude}`;
-      const concatEnd = `${desLatitude},${desLongitude}`;
-      this.getDirections(concatStart, concatEnd);
-      console.log(concatStart + " " + concatEnd);
-    }
-  };
-
-  // 取得起始和目的經緯度 用google direction api 取得路徑資訊
-  async getDirections(startLoc, desLoc) {
     try {
-      const resp = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${startLoc}&destination=${desLoc}&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`
-      );
-      const respJson = await resp.json();
+      await Permissions.askAsync(Permissions.LOCATION);
+      let location = await Location.getCurrentPositionAsync({});
 
-      //需要取得距離資訊才用
-
-      // console.log(respJson)
-      // const response = respJson.routes[0];
-      // const distanceTime = response.legs[0];
-      // const distance = distanceTime.distance.text;
-      // const time = distanceTime.duration.text;
-      const points = Polyline.decode(
-        respJson.routes[0].overview_polyline.points
-      );
-      // console.log(points)
-      const coords = points.map(point => {
-        return {
-          latitude: point[0],
-          longitude: point[1],
-        };
+      this.setState({
+        longitude: location.coords.longitude, //經度(垂直)
+        latitude: location.coords.latitude, //緯度(水平)
       });
-      // console.log(coords)
-      this.setState({ coords });
-    } catch (error) {
-      console.log("Error: ", error);
+    } catch {
+      alert("您必須使用定位功能才能使用成就地圖");
     }
-  }
-
-  async onTargetPress() {
-    console.log("testtetetset");
   }
 
   //地圖標記 start
@@ -126,27 +97,26 @@ export default class App extends Component {
     const {
       coords: { latitude, longitude },
     } = location;
-    this.setState(
-      {
-        destination: location,
-        desLatitude: latitude,
-        desLongitude: longitude,
-      },
-      this.mergeCoords
-    );
+
+    this.setState({
+      destination: location,
+      desLatitude: latitude,
+      desLongitude: longitude,
+    });
+  };
+
+  router = () => {
+    this.setState({ answerTipsDialogVisible: true });
   };
 
   //#################################   底下兩個Button start  ######################################
 
   //拍照解成就
   _takePhoto = async () => {
-    const { latitude, longitude } = this.state;
-    const { serverUserAddressInfo } = this.state;
-
+    const { serverUserAddressInfo } = this.state; //server 傳遞訊息
     const { status: cameraPerm } = await Permissions.askAsync(
       Permissions.CAMERA
     );
-
     const { status: cameraRollPerm } = await Permissions.askAsync(
       Permissions.CAMERA_ROLL
     );
@@ -157,18 +127,6 @@ export default class App extends Component {
         allowsEditing: true,
         aspect: [9, 9],
       });
-      console.log(latitude + " " + longitude + " 自己的位置");
-
-      let getAreaUrl =
-        `https://maps.google.com/maps/api/geocode/json?latlng=` +
-        latitude +
-        `,` +
-        longitude +
-        `&language=zh-TW&sensor=true&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
-
-      const getArea = await fetch(getAreaUrl);
-      const getAreaJson = await getArea.json();
-      let yourselfFormatAddress = getAreaJson.results[0].formatted_address;
 
       let pointAddress = [
         [24.988076, 121.547923], //管院
@@ -179,28 +137,24 @@ export default class App extends Component {
         [25.00471, 121.538378], //咖啡廳
       ];
 
-      let userAddressInfo = [0, 0, 0, 0, 0, 0];
       for (let i = 0; i <= pointAddress.length - 1; i++) {
         const getCertainPointUrl =
           `https://maps.googleapis.com/maps/api/directions/json?origin=25.0056622,121.5378398&destination=` +
           pointAddress[i].toString() +
-          `&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`;
-
+          `&key=AIzaSyA6aaKBA92hNkTGwdJGEs1QAIbjGoixmQI`; //目前位置到目標位置
+        // console.log(getCertainPointUrl)
         const getCertainPoint = await fetch(getCertainPointUrl);
         const getCertainPointJson = await getCertainPoint.json();
         const getCertainPointJsonRoutes = getCertainPointJson.routes[0];
-        const getCertainPointJsonRoutesTime = getCertainPointJsonRoutes.legs[0];
+        const getCertainPointJsonRoutesTime = getCertainPointJsonRoutes.legs[0]; //位置資訊
         const getCertainPointJsonDistance =
           getCertainPointJsonRoutesTime.distance.value;
-
-        console.log(getCertainPointJsonDistance);
-        console.log(getCertainPointUrl);
         if (getCertainPointJsonDistance < 300) {
           if (serverUserAddressInfo[i] == "1") {
             Alert.alert(
               "已重複完成成就哦!",
               "請前往下一個成就",
-              [{ text: "Next", onPress: () => console.log("已完成成就") }],
+              [{ text: "Next", onPress: () => console.log("已重複") }],
               { cancelable: false }
             );
           } else {
@@ -215,106 +169,239 @@ export default class App extends Component {
             // 解開成就再 update serverAddressInfo
             serverUserAddressInfo[i] = 1;
           }
-          // this.setState({ userAddressInfoState: userAddressInfo });
         }
-        // console.log(pointAddress[0].toString())
       }
     }
-    console.log(getAreaJson.results[0].formatted_address);
-    console.log(pickerResult.uri);
-    // this.setState({ image: pickerResult.uri });
-    // ImgRecgnize(pickerResult.uri);
   };
 
-  // 答題
-  anwser = () => {
-    this.setState({ answerTipsDialogVisible: true });
+  //################################################### 土法煉鋼的地標 Start ####################################
+
+  michelin = () => {
+    if (num % 2 == 0) {
+      this.setState({
+        michelinVisible: false,
+      });
+    } else {
+      this.setState({
+        michelinVisible: true,
+      });
+    }
+    num++;
   };
 
-  //#################################   底下兩個Button end  #######################################
-
-  //#################################   地圖標記 start  #######################################
-  renderMarkers = () => {
-    const { locations } = this.state;
+  rendermichelin = () => {
+    const { locations } = this.state; //所有location
     const { serverUserAddressInfo } = this.state;
     console.log(serverUserAddressInfo + " 從Server 撈出的訊息");
+    // console.log('location'+ JSON.stringify(locations))
     return (
       <View>
         {locations.map((location, idx) => {
           const {
             coords: { latitude, longitude },
           } = location;
-          //放陣列判斷 有沒有達成  各別render 圖片放不一樣
-          // console.log(idx)
-          if (serverUserAddressInfo[idx] == "1") {
-            return (
-              <Marker
-                key={idx}
-                coordinate={{ latitude, longitude }}
-                onPress={this.onMarkerPress(location)}
-              >
-                <Image
-                  source={require("./img/finishMark.png")}
-                  style={{ height: 35, width: 35 }}
-                />
-              </Marker>
-            );
-          } else {
-            return (
-              <Marker
-                key={idx}
-                coordinate={{ latitude, longitude }}
-                onPress={this.onMarkerPress(location)}
-              >
-                <Image
-                  source={require("./img/mark.png")}
-                  style={{ height: 35, width: 35 }}
-                />
-              </Marker>
-            );
+
+          if (location.label == "米其林") {
+            if (serverUserAddressInfo[idx] == "1") {
+              return (
+                <Marker
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)} //傳送這個座標的loaction
+                >
+                  <Image
+                    source={require("./img/michelinFinish.png")}
+                    style={[
+                      this.state.michelinVisible
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            } else {
+              return (
+                <Marker //定位
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)}
+                >
+                  <Image
+                    source={require("./img/michelin.png")}
+                    style={[
+                      this.state.michelinVisible == true
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            }
           }
         })}
       </View>
     );
   };
 
-  //#################################   地圖標記 end  #######################################
-
-  //dialog start
-  showDialog = () => {
-    this.setState({ answerTipsDialogVisible: true });
+  nightMarket = () => {
+    if (num % 2 == 0) {
+      this.setState({
+        nightMarketVisible: false,
+      });
+    } else {
+      this.setState({
+        nightMarketVisible: true,
+      });
+    }
+    num++;
   };
 
-  handleCancel = () => {
-    this.setState({ answerTipsDialogVisible: false });
+  renderNightMarket = () => {
+    const { locations } = this.state; //所有location
+    const { serverUserAddressInfo } = this.state;
+    console.log(serverUserAddressInfo + " 從Server 撈出的訊息");
+    // console.log('location'+ JSON.stringify(locations))
+    return (
+      <View>
+        {locations.map((location, idx) => {
+          const {
+            coords: { latitude, longitude },
+          } = location;
+
+          if (location.label == "夜市") {
+            if (serverUserAddressInfo[idx] == "1") {
+              return (
+                <Marker
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)} //傳送這個座標的loaction
+                >
+                  <Image
+                    source={require("./img/night.jpg")}
+                    style={[
+                      this.state.nightMarketVisible
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            } else {
+              return (
+                <Marker //定位
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)}
+                >
+                  <Image
+                    source={require("./img/asd.png")}
+                    style={[
+                      this.state.nightMarketVisible == true
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            }
+          }
+        })}
+      </View>
+    );
   };
 
-  handleDelete = () => {
-    // The user has pressed the "Delete" button, so here you can do your own logic.
-    // ...Your logic
-    this.setState({ answerTipsDialogVisible: false });
+  display = () => {
+    if (num % 2 == 0) {
+      this.setState({
+        test: false,
+      });
+    } else {
+      this.setState({
+        test: true,
+      });
+    }
+    num++;
   };
 
-  //dialog end
+  renderMarkers = () => {
+    const { locations } = this.state; //所有location
+    const { serverUserAddressInfo } = this.state;
+    console.log(serverUserAddressInfo + " 從Server 撈出的訊息");
+    // console.log('location'+ JSON.stringify(locations))
+    return (
+      <View>
+        {locations.map((location, idx) => {
+          const {
+            coords: { latitude, longitude },
+          } = location;
 
-  // MapView 不能放除了他自己以外的其他標籤
+          if (location.label == "主線") {
+            if (serverUserAddressInfo[idx] == "1") {
+              return (
+                <Marker
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)} //傳送這個座標的loaction
+                >
+                  <Image
+                    source={require("./img/finishMark.png")}
+                    style={[
+                      this.state.test
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            } else {
+              return (
+                <Marker //定位
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)}
+                >
+                  <Image
+                    source={require("./img/mark.png")}
+                    style={[
+                      this.state.test == true
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" },
+                    ]}
+                  />
+                </Marker>
+              );
+            }
+          }
+        })}
+      </View>
+    );
+  };
+
+  //################################################### 土法煉鋼的地標 End ####################################
+
   render() {
-    const { latitude, longitude, coords, destination } = this.state;
+    const { latitude, longitude, destination } = this.state;
 
     if (latitude) {
       return (
         <View>
+          {/* now */}
+
           <MapView
             showsUserLocation
             style={styles.mapStyle}
             initialRegion={{
-              latitude,
-              longitude,
+              latitude: 25.062724,
+              longitude: 121.511306,
+              // latitude: this.state.latitude,
+              // longitude: this.state.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
           >
             {this.renderMarkers()}
+            {this.renderNightMarket()}
+            {this.rendermichelin()}
           </MapView>
 
           <Image
@@ -341,20 +428,48 @@ export default class App extends Component {
             <TouchableOpacity
               style={[naviStyle.button, { backgroundColor: "#A58987" }]}
             >
-              <Text onPress={this.anwser} style={naviStyle.buttonText}>
-                達題解成就
+              <Text onPress={this.display} style={naviStyle.buttonText}>
+                主線
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[naviStyle.button, { backgroundColor: "black" }]}
+            >
+              <Text onPress={this.nightMarket} style={naviStyle.buttonText}>
+                夜市
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[naviStyle.button, { backgroundColor: "blue" }]}
+            >
+              <Text onPress={this.michelin} style={naviStyle.buttonText}>
+                米其林
               </Text>
             </TouchableOpacity>
           </View>
-
-          <Dialog.Container visible={this.state.answerTipsDialogVisible}>
-            <Dialog.Title>Account delete</Dialog.Title>
-            <Dialog.Description>
-              Do you want to delete this account? You cannot undo this action.
-            </Dialog.Description>
-            <Dialog.Button label="Cancel" onPress={this.handleCancel} />
-            <Dialog.Button label="Delete" onPress={this.handleDelete} />
-          </Dialog.Container>
+          <Container>
+            <View style={{ flex: 1, margin: 50 }}>
+              <Fab
+                active={this.state.active}
+                direction="left"
+                containerStyle={{}}
+                style={{ backgroundColor: "#5067FF" }}
+                position="bottomRight"
+                onPress={() => this.setState({ active: !this.state.active })}
+              >
+                <Icon name="share" />
+                <Button style={{ backgroundColor: "#34A34F" }}>
+                  <Icon name="logo-whatsapp" />
+                </Button>
+                <Button style={{ backgroundColor: "#3B5998" }}>
+                  <Icon name="logo-facebook" />
+                </Button>
+                <Button disabled style={{ backgroundColor: "#DD5144" }}>
+                  <Icon name="mail" />
+                </Button>
+              </Fab>
+            </View>
+          </Container>
         </View>
       );
     }
@@ -374,14 +489,9 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     backgroundColor: "#ecf0f1",
   },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    textAlign: "center",
-  },
   mapStyle: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
+    height: Dimensions.get("window").height - 40,
   },
 });
 
@@ -395,12 +505,8 @@ const naviStyle = StyleSheet.create({
     height: 60,
     flexDirection: "row",
   },
-  background: {
-    height: 800,
-    width: 600,
-    position: "absolute",
-  },
   button: {
+    height: 40,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -409,17 +515,5 @@ const naviStyle = StyleSheet.create({
     fontSize: 20,
     color: "#fff",
     fontWeight: "bold",
-  },
-  title: {
-    fontSize: 30,
-    color: "#fff",
-    fontWeight: "bold",
-    backgroundColor: "rgba(0,0,0,0)",
-  },
-  desc: {
-    fontSize: 20,
-    color: "#fff",
-    backgroundColor: "rgba(0,0,0,0)",
-    textAlign: "center",
   },
 });
