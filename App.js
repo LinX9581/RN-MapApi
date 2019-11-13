@@ -5,7 +5,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  Alert,
+  Alert
 } from "react-native";
 import { Dialog } from "react-native-simple-dialogs";
 
@@ -61,12 +61,23 @@ export default class App extends Component {
         1,
         0,
         0,
+
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1
       ],
       nightMarketVisible: false,
       michelinVisible: false,
+      hotSightseeing: false,
       test: true,
-      answerTipsDialogVisible: false,
-      active: false,
+      fabActive: false
     };
   }
 
@@ -83,7 +94,7 @@ export default class App extends Component {
 
       this.setState({
         longitude: location.coords.longitude, //經度(垂直)
-        latitude: location.coords.latitude, //緯度(水平)
+        latitude: location.coords.latitude //緯度(水平)
       });
     } catch {
       alert("您必須使用定位功能才能使用成就地圖");
@@ -95,13 +106,13 @@ export default class App extends Component {
   //標記被按下
   onMarkerPress = location => () => {
     const {
-      coords: { latitude, longitude },
+      coords: { latitude, longitude }
     } = location;
 
     this.setState({
       destination: location,
       desLatitude: latitude,
-      desLongitude: longitude,
+      desLongitude: longitude
     });
   };
 
@@ -125,7 +136,7 @@ export default class App extends Component {
     if (cameraPerm === "granted" && cameraRollPerm === "granted") {
       let pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [9, 9],
+        aspect: [9, 9]
       });
 
       let pointAddress = [
@@ -134,7 +145,7 @@ export default class App extends Component {
         [25.040347, 121.560254], //國父紀念館
         [24.998666, 121.581094], //木柵動物園
         [25.00481, 121.53804], //三角冰
-        [25.00471, 121.538378], //咖啡廳
+        [25.00471, 121.538378] //咖啡廳
       ];
 
       for (let i = 0; i <= pointAddress.length - 1; i++) {
@@ -176,14 +187,81 @@ export default class App extends Component {
 
   //################################################### 土法煉鋼的地標 Start ####################################
 
-  michelin = () => {
+  hotSightseeing = () => {
     if (num % 2 == 0) {
       this.setState({
-        michelinVisible: false,
+        hotSightseeing: false
       });
     } else {
       this.setState({
-        michelinVisible: true,
+        hotSightseeing: true
+      });
+    }
+    num++;
+  };
+
+  renderhotSightseeing = () => {
+    const { locations } = this.state; //所有location
+    const { serverUserAddressInfo } = this.state;
+    console.log(serverUserAddressInfo + " 從Server 撈出的訊息");
+    // console.log('location'+ JSON.stringify(locations))asxa
+    return (
+      <View>
+        {locations.map((location, idx) => {
+          const {
+            coords: { latitude, longitude }
+          } = location;
+
+          if (location.label == "前十大熱門景點") {
+            if (serverUserAddressInfo[idx] == "1") {
+              return (
+                <Marker
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)} //傳送這個座標的loaction
+                >
+                  <Image
+                    source={require("./img/hotSightseeingFinished.png")}
+                    style={[
+                      this.state.hotSightseeing
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" }
+                    ]}
+                  />
+                </Marker>
+              );
+            } else {
+              return (
+                <Marker //定位
+                  key={idx}
+                  coordinate={{ latitude, longitude }}
+                  onPress={this.onMarkerPress(location)}
+                >
+                  <Image
+                    source={require("./img/hotSightseeing.png")}
+                    style={[
+                      this.state.hotSightseeing == true
+                        ? { height: 35, width: 35, display: "flex" }
+                        : { height: 35, width: 35, display: "none" }
+                    ]}
+                  />
+                </Marker>
+              );
+            }
+          }
+        })}
+      </View>
+    );
+  };
+
+  michelin = () => {
+    if (num % 2 == 0) {
+      this.setState({
+        michelinVisible: false
+      });
+    } else {
+      this.setState({
+        michelinVisible: true
       });
     }
     num++;
@@ -198,7 +276,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude },
+            coords: { latitude, longitude }
           } = location;
 
           if (location.label == "米其林") {
@@ -214,7 +292,7 @@ export default class App extends Component {
                     style={[
                       this.state.michelinVisible
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -231,7 +309,7 @@ export default class App extends Component {
                     style={[
                       this.state.michelinVisible == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -246,11 +324,11 @@ export default class App extends Component {
   nightMarket = () => {
     if (num % 2 == 0) {
       this.setState({
-        nightMarketVisible: false,
+        nightMarketVisible: false
       });
     } else {
       this.setState({
-        nightMarketVisible: true,
+        nightMarketVisible: true
       });
     }
     num++;
@@ -265,7 +343,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude },
+            coords: { latitude, longitude }
           } = location;
 
           if (location.label == "夜市") {
@@ -281,7 +359,7 @@ export default class App extends Component {
                     style={[
                       this.state.nightMarketVisible
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -294,11 +372,11 @@ export default class App extends Component {
                   onPress={this.onMarkerPress(location)}
                 >
                   <Image
-                    source={require("./img/asd.png")}
+                    source={require("./img/nightMarketFinish.png")}
                     style={[
                       this.state.nightMarketVisible == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -313,11 +391,11 @@ export default class App extends Component {
   display = () => {
     if (num % 2 == 0) {
       this.setState({
-        test: false,
+        test: false
       });
     } else {
       this.setState({
-        test: true,
+        test: true
       });
     }
     num++;
@@ -332,7 +410,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude },
+            coords: { latitude, longitude }
           } = location;
 
           if (location.label == "主線") {
@@ -348,7 +426,7 @@ export default class App extends Component {
                     style={[
                       this.state.test
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -365,7 +443,7 @@ export default class App extends Component {
                     style={[
                       this.state.test == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" },
+                        : { height: 35, width: 35, display: "none" }
                     ]}
                   />
                 </Marker>
@@ -396,12 +474,13 @@ export default class App extends Component {
               // latitude: this.state.latitude,
               // longitude: this.state.longitude,
               latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
+              longitudeDelta: 0.0421
             }}
           >
             {this.renderMarkers()}
             {this.renderNightMarket()}
             {this.rendermichelin()}
+            {this.renderhotSightseeing()}
           </MapView>
 
           <Image
@@ -413,7 +492,7 @@ export default class App extends Component {
               alignSelf: "center",
               height: height * 0.2, //螢幕高
               position: "absolute",
-              bottom: height * 0.05,
+              bottom: Dimensions.get("window").height * 0.2 + 40
             }}
           ></Image>
 
@@ -425,51 +504,69 @@ export default class App extends Component {
                 拍照解成就{" "}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[naviStyle.button, { backgroundColor: "#A58987" }]}
-            >
-              <Text onPress={this.display} style={naviStyle.buttonText}>
-                主線
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[naviStyle.button, { backgroundColor: "black" }]}
-            >
-              <Text onPress={this.nightMarket} style={naviStyle.buttonText}>
-                夜市
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[naviStyle.button, { backgroundColor: "blue" }]}
-            >
-              <Text onPress={this.michelin} style={naviStyle.buttonText}>
-                米其林
-              </Text>
-            </TouchableOpacity>
           </View>
-          <Container>
-            <View style={{ flex: 1, margin: 50 }}>
-              <Fab
-                active={this.state.active}
-                direction="left"
-                containerStyle={{}}
-                style={{ backgroundColor: "#5067FF" }}
-                position="bottomRight"
-                onPress={() => this.setState({ active: !this.state.active })}
+          <View
+            style={{
+              flex: 1,
+              margin: 10,
+              alignSelf: "center",
+              position: "absolute",
+              top: 10,
+              right:10,
+              backgroundColor: "#5067FF",
+              width: 70, //螢幕寬
+              height: 70, //螢幕高
+            }}
+          >
+            <Fab
+              fabActive={this.state.fabActive}
+              direction="down"
+              containerStyle={{}}
+              style={{ backgroundColor: "#5067FF", position: "absolute" }}
+              position="bottomRight"
+              onPress={() =>
+                this.setState({ fabActive: !this.state.fabActive })
+              }
+            >
+              <Icon name="share" />
+              <Button
+                onPress={this.hotSightseeing}
+                style={{ backgroundColor: "white" }}
               >
-                <Icon name="share" />
-                <Button style={{ backgroundColor: "#34A34F" }}>
-                  <Icon name="logo-whatsapp" />
-                </Button>
-                <Button style={{ backgroundColor: "#3B5998" }}>
-                  <Icon name="logo-facebook" />
-                </Button>
-                <Button disabled style={{ backgroundColor: "#DD5144" }}>
-                  <Icon name="mail" />
-                </Button>
-              </Fab>
-            </View>
-          </Container>
+                <Image
+                  source={require("./img/hotSightseeing.png")}
+                  style={{ height: 35, width: 35, borderRadius: 100 / 2 }}
+                />
+              </Button>
+              <Button
+                onPress={this.michelin}
+                style={{ backgroundColor: "white" }}
+              >
+                <Image
+                  source={require("./img/michelin.png")}
+                  style={{ height: 35, width: 35, borderRadius: 100 / 2 }}
+                />
+              </Button>
+              <Button
+                onPress={this.nightMarket}
+                style={{ backgroundColor: "white" }}
+              >
+                <Image
+                  source={require("./img/night.jpg")}
+                  style={{ height: 35, width: 35, borderRadius: 100 / 2 }}
+                />
+              </Button>
+              <Button
+                onPress={this.display}
+                style={{ backgroundColor: "white" }}
+              >
+                <Image
+                  source={require("./img/mark.png")}
+                  style={{ height: 35, width: 35, borderRadius: 100 / 2 }}
+                />
+              </Button>
+            </Fab>
+          </View>
         </View>
       );
     }
@@ -487,33 +584,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: Constants.statusBarHeight,
-    backgroundColor: "#ecf0f1",
+    backgroundColor: "#ecf0f1"
   },
   mapStyle: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height - 40,
-  },
+    height: Dimensions.get("window").height * 0.9
+  }
 });
 
 const naviStyle = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   },
   bottmContainer: {
     height: 60,
-    flexDirection: "row",
+    flexDirection: "row"
   },
   button: {
     height: 40,
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   },
   buttonText: {
     fontSize: 20,
     color: "#fff",
-    fontWeight: "bold",
-  },
+    fontWeight: "bold"
+  }
 });
