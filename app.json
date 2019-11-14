@@ -27,7 +27,13 @@
             "bundleIdentifier": "com.yourcompany.yourappname"
         },
         "android": {
-            "package": "com.shu.lifeforfun"
+            "package": "com.shu.lifeforfun",
+            "config": {
+                "googleMaps": {
+                  "apiKey": "AIzaSyDnL876C5WltTl88tFlaUOiT7AO9ucs2sg"
+                }
+              }
         }
+        
     }
 }

@@ -10,7 +10,7 @@ import {
 import { Dialog } from "react-native-simple-dialogs";
 
 import * as Location from "expo-location";
-import MapView from "react-native-maps";
+import MapView, { Callout } from "react-native-maps";
 import { Marker } from "react-native-maps";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
@@ -28,13 +28,11 @@ export default class App extends Component {
       latitude: null,
       longitude: null,
       locations: locations,
+      destination: {},
       serverUserAddressInfo: [
         0,
         1,
         1,
-        1,
-        1,
-        0,
 
         0,
         0,
@@ -103,21 +101,26 @@ export default class App extends Component {
 
   //地圖標記 start
 
-  //標記被按下
-  onMarkerPress = location => () => {
-    const {
-      coords: { latitude, longitude }
-    } = location;
-
-    this.setState({
-      destination: location,
-      desLatitude: latitude,
-      desLongitude: longitude
-    });
+  openDialog = show => {
+    this.setState({ showDialog: show });
   };
 
-  router = () => {
-    this.setState({ answerTipsDialogVisible: true });
+  optionYes = () => {
+    this.openConfirm(false);
+    // Yes, this is a workaround :(
+    // Why? See this https://github.com/facebook/react-native/issues/10471
+    setTimeout(() => {
+      Alert.alert("The YES Button touched!");
+    }, 300);
+  };
+
+  optionNo = () => {
+    this.openConfirm(false);
+    // Yes, this is a workaround :(
+    // Why? See this https://github.com/facebook/react-native/issues/10471
+    setTimeout(() => {
+      Alert.alert("The NO Button touched!");
+    }, 300);
   };
 
   //#################################   底下兩個Button start  ######################################
@@ -400,7 +403,18 @@ export default class App extends Component {
     }
     num++;
   };
+  //標記被按下
+  onMarkerPress = location => () => {
+    const {
+      coords: { latitude, longitude }
+    } = location;
 
+    this.setState({
+      destination: location,
+      desLatitude: latitude,
+      desLongitude: longitude
+    });
+  };
   renderMarkers = () => {
     const { locations } = this.state; //所有location
     const { serverUserAddressInfo } = this.state;
@@ -415,11 +429,13 @@ export default class App extends Component {
 
           if (location.label == "主線") {
             if (serverUserAddressInfo[idx] == "1") {
+              console.log(location.name);
               return (
                 <Marker
                   key={idx}
                   coordinate={{ latitude, longitude }}
                   onPress={this.onMarkerPress(location)} //傳送這個座標的loaction
+                  title={location.name}
                 >
                   <Image
                     source={require("./img/finishMark.png")}
@@ -437,6 +453,7 @@ export default class App extends Component {
                   key={idx}
                   coordinate={{ latitude, longitude }}
                   onPress={this.onMarkerPress(location)}
+                  title={location.name}
                 >
                   <Image
                     source={require("./img/mark.png")}
@@ -484,15 +501,15 @@ export default class App extends Component {
           </MapView>
 
           <Image
-            source={{ uri: destination && destination.image_url }}
+            source={{ uri: this.state.destination.image_url }}
             style={{
               flex: 1,
               margin: 10,
               width: width * 0.95, //螢幕寬
               alignSelf: "center",
-              height: height * 0.2, //螢幕高
+              height: height * 0.2, //螢幕高ascas
               position: "absolute",
-              bottom: Dimensions.get("window").height * 0.2 + 40
+              bottom: Dimensions.get("window").height * 0.1
             }}
           ></Image>
 
@@ -504,7 +521,49 @@ export default class App extends Component {
                 拍照解成就{" "}
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[naviStyle.button, { backgroundColor: "#A58987" }]}
+            >
+              <Text onPress={this.openDialog(true)} style={naviStyle.buttonText}>
+                如何解成就{" "}
+              </Text>
+            </TouchableOpacity>
           </View>
+
+          <Dialog
+            title="Custom Dialog"
+            animationType="fade"
+            contentStyle={{
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+            onTouchOutside={() => this.openDialog(false)}
+            visible={this.state.showDialog}
+          >
+            <Image
+              source={{
+                uri:
+                  "https://facebook.github.io/react-native/img/header_logo.png"
+              }}
+              style={{
+                width: 99,
+                height: 87,
+                backgroundColor: "black",
+                marginTop: 10,
+                resizeMode: "contain"
+              }}
+            />
+            <Text style={{ marginVertical: 30 }}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </Text>
+            <Button
+              onPress={() => this.openDialog(false)}
+              style={{ marginTop: 10 }}
+              title="CLOSE"
+            />
+          </Dialog>
+
           <View
             style={{
               flex: 1,
@@ -512,18 +571,18 @@ export default class App extends Component {
               alignSelf: "center",
               position: "absolute",
               top: 10,
-              right:10,
-              backgroundColor: "#5067FF",
+              right: 10,
+              // backgroundColor: "#5067FF",
               width: 70, //螢幕寬
-              height: 70, //螢幕高
+              height: 70 //螢幕高
             }}
           >
             <Fab
               fabActive={this.state.fabActive}
               direction="down"
               containerStyle={{}}
-              style={{ backgroundColor: "#5067FF", position: "absolute" }}
-              position="bottomRight"
+              style={{ position: "absolute" }}
+              // position="bottomRight"
               onPress={() =>
                 this.setState({ fabActive: !this.state.fabActive })
               }
