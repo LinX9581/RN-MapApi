@@ -101,27 +101,27 @@ export default class App extends Component {
 
   //地圖標記 start
 
-  openDialog = show => {
-    this.setState({ showDialog: show });
-  };
+  // openDialog = show => {
+  //   this.setState({ showDialog: show });
+  // };
 
-  optionYes = () => {
-    this.openConfirm(false);
-    // Yes, this is a workaround :(
-    // Why? See this https://github.com/facebook/react-native/issues/10471
-    setTimeout(() => {
-      Alert.alert("The YES Button touched!");
-    }, 300);
-  };
+  // optionYes = () => {
+  //   this.openConfirm(false);
+  //   // Yes, this is a workaround :(
+  //   // Why? See this https://github.com/facebook/react-native/issues/10471
+  //   setTimeout(() => {
+  //     Alert.alert("The YES Button touched!");
+  //   }, 300);
+  // };
 
-  optionNo = () => {
-    this.openConfirm(false);
-    // Yes, this is a workaround :(
-    // Why? See this https://github.com/facebook/react-native/issues/10471
-    setTimeout(() => {
-      Alert.alert("The NO Button touched!");
-    }, 300);
-  };
+  // optionNo = () => {
+  //   this.openConfirm(false);
+  //   // Yes, this is a workaround :(
+  //   // Why? See this https://github.com/facebook/react-native/issues/10471
+  //   setTimeout(() => {
+  //     Alert.alert("The NO Button touched!");
+  //   }, 300);
+  // };
 
   //#################################   底下兩個Button start  ######################################
 
@@ -403,6 +403,8 @@ export default class App extends Component {
     }
     num++;
   };
+
+
   //標記被按下
   onMarkerPress = location => () => {
     const {
@@ -474,6 +476,20 @@ export default class App extends Component {
 
   //################################################### 土法煉鋼的地標 End ####################################
 
+  fab = () => {
+    console.log("asdasd")
+    if (num % 2 == 0) {
+      this.setState({
+        fabActive: false
+      });
+    } else {
+      this.setState({
+        fabActive: true
+      });
+    }
+    num++;
+  };
+
   render() {
     const { latitude, longitude, destination } = this.state;
 
@@ -524,13 +540,13 @@ export default class App extends Component {
             <TouchableOpacity
               style={[naviStyle.button, { backgroundColor: "#A58987" }]}
             >
-              <Text onPress={this.openDialog(true)} style={naviStyle.buttonText}>
+              <Text style={naviStyle.buttonText}>
                 如何解成就{" "}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Dialog
+          {/* <Dialog
             title="Custom Dialog"
             animationType="fade"
             contentStyle={{
@@ -562,30 +578,29 @@ export default class App extends Component {
               style={{ marginTop: 10 }}
               title="CLOSE"
             />
-          </Dialog>
+          </Dialog> */}
 
           <View
             style={{
               flex: 1,
-              margin: 10,
+              // margin: 10,
               alignSelf: "center",
-              position: "absolute",
-              top: 10,
-              right: 10,
-              // backgroundColor: "#5067FF",
+              // position: "absolute",
+              top: 70,
+              left: 120,
+              
+              backgroundColor: "#5067FF",
               width: 70, //螢幕寬
               height: 70 //螢幕高
             }}
           >
             <Fab
               fabActive={this.state.fabActive}
-              direction="down"
+              direction="left"
               containerStyle={{}}
-              style={{ position: "absolute" }}
+              // style={{ position: "absolute" }}
               // position="bottomRight"
-              onPress={() =>
-                this.setState({ fabActive: !this.state.fabActive })
-              }
+              onPress={this.fab}
             >
               <Icon name="share" />
               <Button
