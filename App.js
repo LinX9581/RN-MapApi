@@ -5,7 +5,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  Alert
+  Alert,
 } from "react-native";
 import { Dialog } from "react-native-simple-dialogs";
 
@@ -15,7 +15,16 @@ import { Marker } from "react-native-maps";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
-import { Container, Header, Button, Icon, Fab, View } from "native-base";
+import {
+  Container,
+  Header,
+  Button,
+  Icon,
+  Fab,
+  View,
+  Footer,
+  FooterTab,
+} from "native-base";
 
 let num = 0;
 const locations = require("./location/locations.json");
@@ -69,13 +78,13 @@ export default class App extends Component {
         1,
         0,
         1,
-        1
+        1,
       ],
       nightMarketVisible: false,
       michelinVisible: false,
       hotSightseeing: false,
       test: true,
-      fabActive: false
+      active: false,
     };
   }
 
@@ -92,7 +101,7 @@ export default class App extends Component {
 
       this.setState({
         longitude: location.coords.longitude, //經度(垂直)
-        latitude: location.coords.latitude //緯度(水平)
+        latitude: location.coords.latitude, //緯度(水平)
       });
     } catch {
       alert("您必須使用定位功能才能使用成就地圖");
@@ -139,7 +148,7 @@ export default class App extends Component {
     if (cameraPerm === "granted" && cameraRollPerm === "granted") {
       let pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [9, 9]
+        aspect: [9, 9],
       });
 
       let pointAddress = [
@@ -148,7 +157,7 @@ export default class App extends Component {
         [25.040347, 121.560254], //國父紀念館
         [24.998666, 121.581094], //木柵動物園
         [25.00481, 121.53804], //三角冰
-        [25.00471, 121.538378] //咖啡廳
+        [25.00471, 121.538378], //咖啡廳
       ];
 
       for (let i = 0; i <= pointAddress.length - 1; i++) {
@@ -193,11 +202,11 @@ export default class App extends Component {
   hotSightseeing = () => {
     if (num % 2 == 0) {
       this.setState({
-        hotSightseeing: false
+        hotSightseeing: false,
       });
     } else {
       this.setState({
-        hotSightseeing: true
+        hotSightseeing: true,
       });
     }
     num++;
@@ -212,7 +221,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude }
+            coords: { latitude, longitude },
           } = location;
 
           if (location.label == "前十大熱門景點") {
@@ -228,7 +237,7 @@ export default class App extends Component {
                     style={[
                       this.state.hotSightseeing
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -245,7 +254,7 @@ export default class App extends Component {
                     style={[
                       this.state.hotSightseeing == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -260,11 +269,11 @@ export default class App extends Component {
   michelin = () => {
     if (num % 2 == 0) {
       this.setState({
-        michelinVisible: false
+        michelinVisible: false,
       });
     } else {
       this.setState({
-        michelinVisible: true
+        michelinVisible: true,
       });
     }
     num++;
@@ -279,7 +288,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude }
+            coords: { latitude, longitude },
           } = location;
 
           if (location.label == "米其林") {
@@ -295,7 +304,7 @@ export default class App extends Component {
                     style={[
                       this.state.michelinVisible
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -312,7 +321,7 @@ export default class App extends Component {
                     style={[
                       this.state.michelinVisible == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -327,11 +336,11 @@ export default class App extends Component {
   nightMarket = () => {
     if (num % 2 == 0) {
       this.setState({
-        nightMarketVisible: false
+        nightMarketVisible: false,
       });
     } else {
       this.setState({
-        nightMarketVisible: true
+        nightMarketVisible: true,
       });
     }
     num++;
@@ -346,7 +355,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude }
+            coords: { latitude, longitude },
           } = location;
 
           if (location.label == "夜市") {
@@ -362,7 +371,7 @@ export default class App extends Component {
                     style={[
                       this.state.nightMarketVisible
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -379,7 +388,7 @@ export default class App extends Component {
                     style={[
                       this.state.nightMarketVisible == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -394,27 +403,26 @@ export default class App extends Component {
   display = () => {
     if (num % 2 == 0) {
       this.setState({
-        test: false
+        test: false,
       });
     } else {
       this.setState({
-        test: true
+        test: true,
       });
     }
     num++;
   };
 
-
   //標記被按下
   onMarkerPress = location => () => {
     const {
-      coords: { latitude, longitude }
+      coords: { latitude, longitude },
     } = location;
 
     this.setState({
       destination: location,
       desLatitude: latitude,
-      desLongitude: longitude
+      desLongitude: longitude,
     });
   };
   renderMarkers = () => {
@@ -426,7 +434,7 @@ export default class App extends Component {
       <View>
         {locations.map((location, idx) => {
           const {
-            coords: { latitude, longitude }
+            coords: { latitude, longitude },
           } = location;
 
           if (location.label == "主線") {
@@ -444,7 +452,7 @@ export default class App extends Component {
                     style={[
                       this.state.test
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -462,7 +470,7 @@ export default class App extends Component {
                     style={[
                       this.state.test == true
                         ? { height: 35, width: 35, display: "flex" }
-                        : { height: 35, width: 35, display: "none" }
+                        : { height: 35, width: 35, display: "none" },
                     ]}
                   />
                 </Marker>
@@ -476,15 +484,15 @@ export default class App extends Component {
 
   //################################################### 土法煉鋼的地標 End ####################################
 
-  fab = () => {
-    console.log("asdasd")
+  fab = async () => {
+    console.log("asdasd");
     if (num % 2 == 0) {
       this.setState({
-        fabActive: false
+        fabActive: false,
       });
     } else {
       this.setState({
-        fabActive: true
+        fabActive: true,
       });
     }
     num++;
@@ -507,7 +515,7 @@ export default class App extends Component {
               // latitude: this.state.latitude,
               // longitude: this.state.longitude,
               latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421
+              longitudeDelta: 0.0421,
             }}
           >
             {this.renderMarkers()}
@@ -525,7 +533,7 @@ export default class App extends Component {
               alignSelf: "center",
               height: height * 0.2, //螢幕高ascas
               position: "absolute",
-              bottom: Dimensions.get("window").height * 0.1
+              bottom: Dimensions.get("window").height * 0.1,
             }}
           ></Image>
 
@@ -540,9 +548,7 @@ export default class App extends Component {
             <TouchableOpacity
               style={[naviStyle.button, { backgroundColor: "#A58987" }]}
             >
-              <Text style={naviStyle.buttonText}>
-                如何解成就{" "}
-              </Text>
+              <Text style={naviStyle.buttonText}>如何解成就 </Text>
             </TouchableOpacity>
           </View>
 
@@ -580,29 +586,8 @@ export default class App extends Component {
             />
           </Dialog> */}
 
-          <View
-            style={{
-              flex: 1,
-              // margin: 10,
-              alignSelf: "center",
-              // position: "absolute",
-              top: 70,
-              left: 120,
-              
-              backgroundColor: "#5067FF",
-              width: 70, //螢幕寬
-              height: 70 //螢幕高
-            }}
-          >
-            <Fab
-              fabActive={this.state.fabActive}
-              direction="left"
-              containerStyle={{}}
-              // style={{ position: "absolute" }}
-              // position="bottomRight"
-              onPress={this.fab}
-            >
-              <Icon name="share" />
+          <Footer>
+            <FooterTab>
               <Button
                 onPress={this.hotSightseeing}
                 style={{ backgroundColor: "white" }}
@@ -639,8 +624,8 @@ export default class App extends Component {
                   style={{ height: 35, width: 35, borderRadius: 100 / 2 }}
                 />
               </Button>
-            </Fab>
-          </View>
+            </FooterTab>
+          </Footer>
         </View>
       );
     }
@@ -658,33 +643,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: Constants.statusBarHeight,
-    backgroundColor: "#ecf0f1"
+    backgroundColor: "#ecf0f1",
   },
   mapStyle: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.9
-  }
+    height: Dimensions.get("window").height * 0.9,
+  },
 });
 
 const naviStyle = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   bottmContainer: {
     height: 60,
-    flexDirection: "row"
+    flexDirection: "row",
   },
   button: {
     height: 40,
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 20,
     color: "#fff",
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 });
