@@ -1,7 +1,7 @@
 {
     "expo": {
-        "name": "mapPlace",
-        "slug": "mapPlace",
+        "name": "mapPlace1",
+        "slug": "mapPlace1",
         "privacy": "public",
         "sdkVersion": "35.0.0",
         "platforms": [
@@ -9,7 +9,7 @@
             "android",
             "web"
         ],
-        "version": "1.0.0",
+        "version": "2.0.0",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "splash": {
@@ -27,7 +27,8 @@
             "bundleIdentifier": "com.yourcompany.yourappname"
         },
         "android": {
-            "package": "com.shu.lifeforfunMap",
+            "package": "com.shu.lifeforfun",
+            "versionCode": 2,
             "config": {
                 "googleMaps": {
                   "apiKey": "AIzaSyDnL876C5WltTl88tFlaUOiT7AO9ucs2sg"
